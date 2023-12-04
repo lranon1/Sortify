@@ -3,6 +3,8 @@ import os
 import base64
 from requests import post,get
 import json
+import time
+
 load_dotenv()
 
 client_id = os.getenv("CLIENT_ID")
@@ -95,33 +97,43 @@ def simplify_recommended(token, r):
 
 
 
-def merge_sort(r):
-    front = r[:len(r)//2]
-    back = r[len(r)//2]
+def merge_sort(r): #by lexicographical
+    if len(r) > 1:
+        front = r[:len(r)//2]
+        back = r[len(r)//2:]
 
-    merge_sort(front)
-    merge_sort(back)
+        merge_sort(front)
+        merge_sort(back)
 
-    f = 0
-    b = 0
-    idx = 0
+        f = 0
+        b = 0
+        idx = 0
 
-    while f < len(front) and b < len(back):
-        if front[f] < back[b]:
+        while f < len(front) and b < len(back):
+            if front[f] < back[b]:
+                r[idx] = front[f]
+                f += 1
+            else:
+                r[idx] = back[b]
+                b += 1
+            idx += 1
+        
+        while f < len(front):
             r[idx] = front[f]
             f += 1
-        else:
+            idx += 1
+
+        while b < len(back):
             r[idx] = back[b]
             b += 1
-        idx += 1
-
-
+            idx += 1
 
 
 
 token = get_token()
 
 print("Welcome to Spotify Recommender\n")
+
 
 #menu turn into while
 artist, genre, track = input("To get recommendations give one artist, one genre, and one track: ").split()
@@ -135,7 +147,7 @@ print(f"Best artist match: {artist_name["name"]}")
 artist_id = artist_name["id"]
 songs = get_songs_by_artist(token, artist_id)
 
-print("\n")
+print(f"Top tracks by {artist_name["name"]}:\n")
 for idx, song in enumerate(songs):
     print(f"{idx+1}. {song['name']}") 
 print("\n")
@@ -151,12 +163,17 @@ track_title = search_for_track(token, track)
 print(f"Best track match: {track_title["name"]}\n")
 track_id = track_title["id"]
 
-print("Recommended Tracks: \n")
-recommendations = get_recommendations(token, artist_id, genre, track_id)
-
 print("Getting recommendations...\n")
+recommendations = get_recommendations(token, artist_id, genre, track_id)
 recommended = simplify_recommended(token, recommendations)
-    
+
+print("Merge sorting...\n")
+start = time.time()
+merge_sort(recommended)
+end = time.time()-start
+print(f"{end} seconds\n")
+
+print("Recommended Tracks: \n")  
 for idx, song in enumerate(recommended):
     print(f"{idx+1}. {song}")
 
