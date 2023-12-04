@@ -49,6 +49,13 @@ def get_artist(token, url):
     json_result = json.loads(result.content)["artists"]
     return json_result[0]
 
+def get_related_artists(token, id):
+    url = f"https://api.spotify.com/v1/artists/{id}/related-artists"
+    headers = get_auth_header(token)
+    result = get(url,headers=headers)
+    json_result = json.loads(result.content)["artists"]
+    return json_result
+
 def search_for_track(token, track_title):
     url = "https://api.spotify.com/v1/search"
     headers = get_auth_header(token)
@@ -87,15 +94,13 @@ def get_recommendations(token, artist, genre, track):
     #print(json_result)
     return json_result
 
-def simplify_recommended(token, r):
-    recommended = []
+def simplify_result(token, r):
+    simple = []
     for song in r:
         art = get_artist(token, song['href'])
         title = song['name']
-        recommended.append(f"{title} by {art["name"]}")
-    return recommended
-
-
+        simple.append(f"{title} by {art["name"]}")
+    return simple
 
 def merge_sort(r): #by lexicographical
     if len(r) > 1:
@@ -130,50 +135,106 @@ def merge_sort(r): #by lexicographical
 
 
 
-token = get_token()
-
 print("Welcome to Spotify Recommender\n")
 
+opt = "-1"
 
-#menu turn into while
-artist, genre, track = input("To get recommendations give one artist, one genre, and one track: ").split()
+while opt != "0":
+    token = get_token()
 
-print("\n")
+    print("Options\n")
+    print("1. Get an artist's top songs")
+    print("2. Get related artists")
+    print("3. Get recommendations based on artist, genre, and track")
+    print("Press 0 to exit")
+    opt = input("Enter option: ")
 
-#for artist
-artist_name = search_for_artist(token, artist)
-#if artist_name == None: 
-print(f"Best artist match: {artist_name["name"]}")
-artist_id = artist_name["id"]
-songs = get_songs_by_artist(token, artist_id)
+    if opt == "1":
+        artist = input("Enter an artist: ")
+        artist_name = search_for_artist(token, artist)
+        if artist_name == None:
+            continue
+        else:
+            print(f"Best artist match: {artist_name["name"]}\n")
+            artist_id = artist_name["id"]
 
-print(f"Top tracks by {artist_name["name"]}:\n")
-for idx, song in enumerate(songs):
-    print(f"{idx+1}. {song['name']}") 
-print("\n")
+            print("Getting tracks...\n")
+            songs = get_songs_by_artist(token, artist_id)
 
-#for genre
-genres = available_genres(token)
-if genre not in genres:
-    print("No such genre exists...\n")
+            simple = simplify_result(token, songs)
 
-#for track
-track_title = search_for_track(token, track)
-#if track_title == None:
-print(f"Best track match: {track_title["name"]}\n")
-track_id = track_title["id"]
+            print("Merge sorting...\n")
+            start = time.time()
+            merge_sort(simple)
+            end = time.time()-start
+            print(f"{end} seconds\n")
 
-print("Getting recommendations...\n")
-recommendations = get_recommendations(token, artist_id, genre, track_id)
-recommended = simplify_recommended(token, recommendations)
 
-print("Merge sorting...\n")
-start = time.time()
-merge_sort(recommended)
-end = time.time()-start
-print(f"{end} seconds\n")
+            print("Top Tracks:\n")
+            for idx, s in enumerate(simple):
+                print(f"{idx+1}. {simple[idx]}") 
+    elif opt == "2":
+        artist = input("Enter an artist: ")
+        artist_name = search_for_artist(token, artist)
+        if artist_name == None:
+            continue
+        else:
+            print(f"Best artist match: {artist_name["name"]}\n")
+            artist_id = artist_name["id"]
+            related = get_related_artists(token, artist_id)
 
-print("Recommended Tracks: \n")  
-for idx, song in enumerate(recommended):
-    print(f"{idx+1}. {song}")
+            simple = []
+            for s in related:
+                simple.append(s['name'])
+            
+            print("Merge sorting...\n")
+            start = time.time()
+            merge_sort(simple)
+            end = time.time()-start
+            print(f"{end} seconds\n")
+
+            print("Related Artists:\n")
+            for idx, s in enumerate(simple):
+                print(f"{idx+1}. {simple[idx]}") 
+    elif opt == "3":
+        artist = input("Enter an artist: ")
+        artist_name = search_for_artist(token, artist)
+        if artist_name == None:
+            continue
+        else:
+            print(f"Best artist match: {artist_name["name"]}\n")
+            artist_id = artist_name["id"]
+
+        genre = input("Enter a genre: ")
+        genres = available_genres(token)
+        if genre not in genres:
+            print("No such genre exists...\n")
+            continue
+
+        track = input("Enter a track: ")
+        track_title = search_for_track(token, track)
+        #if track_title == None:
+        print(f"Best track match: {track_title["name"]}\n")
+        track_id = track_title["id"]
+
+        print("Getting recommendations...\n")
+        recommendations = get_recommendations(token, artist_id, genre, track_id)
+        recommended = simplify_result(token, recommendations)
+
+        print("Merge sorting...\n")
+        start = time.time()
+        merge_sort(recommended)
+        end = time.time()-start
+        print(f"{end} seconds\n")
+
+        print("Recommended Tracks: \n")  
+        for idx, song in enumerate(recommended):
+            print(f"{idx+1}. {song}")
+    elif opt == "0":
+        print("Thank you for using Spotify Recommender!")
+        break
+    else:
+        print("Invalid input.")   
+
+    print("\n")
 
