@@ -42,6 +42,12 @@ def search_for_artist(token, artist_name):
         return None
     return json_result[0]
 
+def get_artist(token, url):
+    headers = get_auth_header(token)
+    result = get(url,headers=headers)
+    json_result = json.loads(result.content)["artists"]
+    return json_result[0]
+
 def search_for_track(token, track_title):
     url = "https://api.spotify.com/v1/search"
     headers = get_auth_header(token)
@@ -77,6 +83,7 @@ def get_recommendations(token, artist, genre, track):
     query_url = url + query
     result = get(query_url, headers=headers)
     json_result = json.loads(result.content)["tracks"]
+    #print(json_result)
     return json_result
 
 
@@ -87,17 +94,19 @@ print("Welcome to Spotify Recommender\n")
 #menu turn into while
 artist, genre, track = input("To get recommendations give one artist, one genre, and one track: ").split()
 
+print("\n")
+
 #for artist
 artist_name = search_for_artist(token, artist)
 #if artist_name == None: 
 print(artist_name["name"])
 artist_id = artist_name["id"]
 songs = get_songs_by_artist(token, artist_id)
-#print(songs)
 
+print("\n")
 for idx, song in enumerate(songs):
     print(f"{idx+1}. {song['name']}") 
-
+print("\n")
 
 #for genre
 genres = available_genres(token)
@@ -107,10 +116,13 @@ if genre not in genres:
 #for track
 track_title = search_for_track(token, track)
 #if track_title == None:
-print(track_title["name"])
+#print(track_title["name"])
 track_id = track_title["id"]
 
+print("Recommended Tracks: ")
+print("\n")
 recommendations = get_recommendations(token, artist_id, genre, track_id)
 for idx, song in enumerate(recommendations):
-    print(f"{idx+1}. {song['name']}") 
+    art = get_artist(token, song['href'])
+    print(f"{idx+1}. {song['name']} by {art["name"]}")
 
