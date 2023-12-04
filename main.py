@@ -134,6 +134,42 @@ def merge_sort(r): #by lexicographical
             b += 1
             idx += 1
 
+#swap values in an array
+def swap(arr, i, j):
+    #hold value of index to be changed in a temp
+    temp = arr[i]
+    #assign value at index j to index i
+    arr[i] = arr[j]
+    #assign original value in i to index j
+    arr[j] = temp
+
+#generate random index value for pivot
+def randomPivot(low, high):
+    return random.randint(low, high)
+
+#quicksort algorithm
+def quicksort(arr, low, high):
+    if low < high:
+        pivotIndex = randomPivot(low, high)
+        pivotValue = arr[pivotIndex]
+
+        #swap pivot with high, putting it last in arr
+        swap(arr, pivotIndex, high)
+        
+        i = low - 1
+        
+        for j in range(low, high):
+            if arr[j] < pivotValue:
+                i+=1
+                swap(arr, i, j)
+
+        #swap pivot back into correct place in array 
+        swap(arr, i+1, high)
+        
+        #recursive call to sort subarrays 
+        quicksort(arr, low, i)
+        quicksort(arr, i+2, high)
+
 
 
 print("Welcome to Sortify\n")
@@ -251,41 +287,7 @@ while opt != "0":
 
     print("\n")
 
-#swap values in an array
-def swap(arr, i, j):
-    #hold value of index to be changed in a temp
-    temp = arr[i]
-    #assign value at index j to index i
-    arr[i] = arr[j]
-    #assign original value in i to index j
-    arr[j] = temp
 
-#generate random index value for pivot
-def randomPivot(low, high):
-    return random.randint(low, high)
-
-#quicksort algorithm
-def quicksort(arr, low, high):
-    if low < high:
-        pivotIndex = randomPivot(low, high)
-        pivotValue = arr[pivotIindex]
-
-        #swap pivot with high, putting it last in arr
-        swap(arr, pivotIndex, high)
-        
-        i = low - 1
-        
-        for j in range(low, high):
-            if arr[j] < pivotValue:
-                i+=1
-                swap(arr, i, j)
-
-        #swap pivot back into correct place in array 
-        swap(arr, i+1, high)
-        
-        #recursive call to sort subarrays 
-        quicksort(arr, low, i)
-        quicksort(arr, i+2, high)
 
 
         
