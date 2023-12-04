@@ -162,6 +162,7 @@ while opt != "0":
             songs = get_songs_by_artist(token, artist_id)
 
             simple = simplify_result(token, songs)
+            quickSimple = simplify_result(token, songs)
 
             print("Merge sorting...\n")
             start = time.time()
@@ -169,10 +170,21 @@ while opt != "0":
             end = time.time()-start
             print(f"{end} seconds\n")
 
+            print("Quick sorting...\n")
+            qstart = time.time()
+            quicksort(quickSimple, 0, len(quickSimple) - 1)
+            qend = time.time() - qstart
+            print(f"{qend} seconds\n")
+
 
             print("Top Tracks:\n")
             for idx, s in enumerate(simple):
                 print(f"{idx+1}. {simple[idx]}") 
+
+            print("Top Quick Sorted Tracks:\n")
+            for idx, s in enumerate(quickSimple):
+                print(f"{idx+1}. {quickSimple[idx]}")
+                
     elif opt == "2":
         artist = input("Enter an artist: ")
         artist_name = search_for_artist(token, artist)
@@ -237,3 +249,45 @@ while opt != "0":
         print("Invalid input.")   
 
     print("\n")
+
+#swap values in an array
+def swap(arr, i, j):
+    #hold value of index to be changed in a temp
+    temp = arr[i]
+    #assign value at index j to index i
+    arr[i] = arr[j]
+    #assign original value in i to index j
+    arr[j] = temp
+
+#generate random index value for pivot
+def randomPivot(low, high):
+    return random.randint(low, high)
+
+#quicksort algorithm
+def quicksort(arr, low, high):
+    if low < high:
+        pivotIndex = randomPivot(low, high)
+        pivotValue = arr[pivotIindex]
+
+        #swap pivot with high, putting it last in arr
+        swap(arr, pivotIndex, high)
+        
+        i = low - 1
+        
+        for j in range(low, high):
+            if arr[j] < pivotValue:
+                i+=1
+                swap(arr, i, j)
+
+        #swap pivot back into correct place in array 
+        swap(arr, i+1, high)
+        
+        #recursive call to sort subarrays 
+        quicksort(arr, low, i)
+        quicksort(arr, i+2, high)
+
+
+        
+        
+
+    
