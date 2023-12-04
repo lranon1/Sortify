@@ -3,7 +3,6 @@ import os
 import base64
 from requests import post,get
 import json
-
 load_dotenv()
 
 client_id = os.getenv("CLIENT_ID")
@@ -86,6 +85,39 @@ def get_recommendations(token, artist, genre, track):
     #print(json_result)
     return json_result
 
+def simplify_recommended(token, r):
+    recommended = []
+    for song in r:
+        art = get_artist(token, song['href'])
+        title = song['name']
+        recommended.append(f"{title} by {art["name"]}")
+    return recommended
+
+
+
+def merge_sort(r):
+    front = r[:len(r)//2]
+    back = r[len(r)//2]
+
+    merge_sort(front)
+    merge_sort(back)
+
+    f = 0
+    b = 0
+    idx = 0
+
+    while f < len(front) and b < len(back):
+        if front[f] < back[b]:
+            r[idx] = front[f]
+            f += 1
+        else:
+            r[idx] = back[b]
+            b += 1
+        idx += 1
+
+
+
+
 
 token = get_token()
 
@@ -99,7 +131,7 @@ print("\n")
 #for artist
 artist_name = search_for_artist(token, artist)
 #if artist_name == None: 
-print(artist_name["name"])
+print(f"Best artist match: {artist_name["name"]}")
 artist_id = artist_name["id"]
 songs = get_songs_by_artist(token, artist_id)
 
@@ -116,13 +148,15 @@ if genre not in genres:
 #for track
 track_title = search_for_track(token, track)
 #if track_title == None:
-#print(track_title["name"])
+print(f"Best track match: {track_title["name"]}\n")
 track_id = track_title["id"]
 
-print("Recommended Tracks: ")
-print("\n")
+print("Recommended Tracks: \n")
 recommendations = get_recommendations(token, artist_id, genre, track_id)
-for idx, song in enumerate(recommendations):
-    art = get_artist(token, song['href'])
-    print(f"{idx+1}. {song['name']} by {art["name"]}")
+
+print("Getting recommendations...\n")
+recommended = simplify_recommended(token, recommendations)
+    
+for idx, song in enumerate(recommended):
+    print(f"{idx+1}. {song}")
 
