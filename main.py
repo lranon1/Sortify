@@ -135,7 +135,7 @@ def merge_sort(r): #by lexicographical
 
 
 
-print("Welcome to Spotify Recommender\n")
+print("Welcome to Sortify\n")
 
 opt = "-1"
 
@@ -231,7 +231,7 @@ while opt != "0":
         for idx, song in enumerate(recommended):
             print(f"{idx+1}. {song}")
     elif opt == "0":
-        print("Thank you for using Spotify Recommender!")
+        print("Thank you for using Sortify!")
         break
     else:
         print("Invalid input.")   
