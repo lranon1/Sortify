@@ -218,10 +218,6 @@ while opt != "0":
             for idx, s in enumerate(simple):
                 print(f"{idx+1}. {simple[idx]}") 
 
-            print("Top Quick Sorted Tracks:\n")
-            for idx, s in enumerate(quickSimple):
-                print(f"{idx+1}. {quickSimple[idx]}")
-                
     elif opt == "2":
         artist = input("Enter an artist: ")
         artist_name = search_for_artist(token, artist)
@@ -233,14 +229,24 @@ while opt != "0":
             related = get_related_artists(token, artist_id)
 
             simple = []
+            quickSimple = []
             for s in related:
                 simple.append(s['name'])
+                quickSimple.append(s['simple'])
+
             
             print("Merge sorting...\n")
             start = time.time()
             merge_sort(simple)
             end = time.time()-start
             print(f"{end} seconds\n")
+
+            
+            print("Quick sorting...\n")
+            qstart = time.time()
+            quicksort(quickSimple, 0, len(quickSimple) - 1)
+            qend = time.time() - qstart
+            print(f"{qend} seconds\n")
 
             print("Related Artists:\n")
             for idx, s in enumerate(simple):
@@ -269,12 +275,19 @@ while opt != "0":
         print("Getting recommendations...\n")
         recommendations = get_recommendations(token, artist_id, genre, track_id)
         recommended = simplify_result(token, recommendations)
+        quickRecommended = simplify_result(token, recommendations)
 
         print("Merge sorting...\n")
         start = time.time()
         merge_sort(recommended)
         end = time.time()-start
         print(f"{end} seconds\n")
+        
+        print("Quick sorting...\n")
+        qstart = time.time()
+        quicksort(quickRecommended, 0, len(quickRecommended) - 1)
+        qend = time.time() - qstart
+        print(f"{qend} seconds\n")
 
         print("Recommended Tracks: \n")  
         for idx, song in enumerate(recommended):
