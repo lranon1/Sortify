@@ -232,7 +232,7 @@ while opt != "0":
             quickSimple = []
             for s in related:
                 simple.append(s['name'])
-                quickSimple.append(s['simple'])
+                quickSimple.append(s['name'])
 
             
             print("Merge sorting...\n")
